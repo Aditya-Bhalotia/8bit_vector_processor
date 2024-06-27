@@ -70,10 +70,10 @@ The project is based on the design of an 8-bit processor that performs general a
 - **Inputs**: `clk`, `rst`, a 32-bit instruction, and a 64-bit input data path from the main memory
 - **Outputs**: 
   - 64-bit output data path to the main memory
-  - Final program counter
-  - 12-bit output memory location
+  - Final program counter (To be provided as input to instruction_memory_module)
+  - 12-bit output memory location (To be provided to main_memory_module for read and write operation)
   - Flags: `vector_write_access`, `memory_read_access`, `load_vector_flag`, `load_word_flag`
-- **Notes**: All the intermediate wires and registers are used in the instantiations of the different modules.
+- **Notes**: All the intermediate wires and registers in the code are used in the instantiations of the different modules.
 
 ## Opcode Mapping
 
@@ -108,7 +108,7 @@ The ISA uses 26 instructions, which are coded using a 6-bit opcode in a 32-bit i
 | 6'b101100  | Register Address Write                       |
 | 6'b101111  | Register Address Read                        |
 
-All the instructions have their usual meaning as used in general literature, as mentioned in Prof. Sarangi's textbook "Basic Computer Architecture."
+All the instructions have their usual meaning as used in general literature and also mentioned in Prof. Smruti Ranjan Sarangi's textbook "Basic Computer Architecture."
 
 ## Instruction Syntax
 
@@ -122,9 +122,9 @@ By default, all 32-bit instructions have their first 6 bits as the opcode. The s
 5. **Store instructions**: `opcode[6bit] + DC[5bit] + source register address[5bit] + DC[4bit] + memory address[12bit]`
 6. **Jump instructions**: `opcode[6bit] + final instruction address[26bit]`
 
-*DC -> Don't care (can either be zeros or ones)
+*DC -> Don't care (can be filled with any bit. Generally filled with zeros)
 
-*The Register Address Write instruction is to be given just before initializing the loop statement, while the Register Address Read is to be given just before giving a branch instruction always.
+*The Register Address Write instruction is to be given just before initializing the loop statement, while the Register Address Read is to be given just before giving a branch instruction always. This ensures that you have appropraitely remembered your program counter location. (Refer to "Basic Computer Architecture" book to know about the reason for it)
 
 ## Additional Notes
 
