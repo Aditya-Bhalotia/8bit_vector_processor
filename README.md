@@ -1,7 +1,7 @@
-# 8bit_vector_processor
+# Design of a 8-bit vector processor
 
 ## Overview
-The project is an 8-bit processor that performs general arithmetic, logical operations, and other general-purpose operations on standard 8-bit scalars and vectors containing 8-bit elements. For simplicity, the vectors are necessarily of dimension 8, meaning this processor only supports vectors of length 8, each element of which is an 8-bit entity.
+The project is based on the design of an 8-bit processor that performs general arithmetic, logical operations, and other general-purpose operations on standard 8-bit scalars as well as vectors containing 8-bit elements. For simplicity, the vectors are necessarily of dimension 8, meaning this processor only supports vectors of length 8, where each element is 8-bit wide.
 
 ## Individual Modules
 
@@ -19,33 +19,43 @@ The project is an 8-bit processor that performs general arithmetic, logical oper
 
 ### Register_File
 - **Description**: Contains 32 8-bit registers for general-purpose scalar operations
-- **Inputs**: `clk`, two 5-bit register addresses to read data from, a 5-bit register address to write data to, a `write_enable` signal, two 8-bit registers to read data to, and an 8-bit `write_data`
+- **Inputs**: `clk`, two 5-bit register addresses to specify read location, a 5-bit register address to specify write location, a `write_enable` signal, and an 8-bit `write_data` specifying the data to be written
+- **Outputs**: two 8-bit wide path corresponding to the two read address inputs.
 - **Operations**: 
-  - Read operations occur at the posedge of the clock, where the data from the specified addresses is read onto the output registers except when the address is 5'b11111.
-  - Write operations occur at the negedge of the clock.
+  - All read operations from register bank occur at the posedge of the clock, where the data from the specified addresses is read onto the output data bus
+  - Note that there are 32 register and thus its decided to mark 5'b11111 register address as invalid.
+  - All write operations in the register bank occur at the negedge of the clock.
+- **NOTE** :The contents that can be read/written in these words will be referred as words. 
 
 ### VectorRegisterFile
 - **Description**: Contains 3 64-bit registers for vector operations
-- **Inputs**: `clk`, two 5-bit register addresses to read data from, a 5-bit register address to write data to, a `write_enable` signal, two 64-bit registers to read data to, and a 64-bit `write_data`
-- **Operations**: 
-  - Read operations occur at the posedge of the clock, where the data from the specified addresses is read onto the output registers except when the address is 5'b11111.
-  - Write operations occur at the negedge of the clock.
+- **Inputs**: `clk`, two 5-bit register addresses to specify read location, a 5-bit register address to specify write location, a `write_enable` signal, and a 64-bit `write_data` specifying the data to be written
+-  **Outputs**: two 64-bit wide path corresponding to the two read address inputs.
+- **Operations**:
+  - All read operations from register bank occur at the posedge of the clock, where the data from the specified addresses is read onto the output data bus
+  - Note that there are 3 vector registers. We decided to mark 5'b11111 register address as invalid. Ensure that the read/write address does not exceed 5'b00011.
+  - All write operations in the register bank occur at the negedge of the clock.
+- **NOTE** :The contents that can be read/written in these words will be referred as words.
 
 ### VPU
 - **Description**: The vector processing unit
-- **Inputs**: `clk`, two 64-bit operands (vectors), an `enable` signal, a 6-bit `opcode`, and a 64-bit output
+- **Inputs**: `clk`, two 64-bit operands (vectors), an `enable` signal, a 6-bit `opcode`
+- **Output**:  A 64-bit output
 - **Operations**: 
   - Performs add, subtract, and dot product operations.
   - Returns 64-bit output, of which the last 8 bits are relevant for dot product, and all 64 bits for add and subtract.
 
 ### ALU
 - **Description**: The arithmetic and logical unit
-- **Inputs**: `clk`, two 8-bit operands, an `enable` signal, a 6-bit `opcode`, an 8-bit output, a zero register, and an overflow register
+- **Inputs**: `clk`, two 8-bit operands, an `enable` signal, a 6-bit `opcode`
+- **Outputs**: A 8-bit output, a zero register, and an overflow register
 - **Operations**: Returns 8-bit output of the respective arithmetic/logic operation.
-
+- **NOTE**: This unit operates on words.
+  
 ### Control_Unit
 - **Inputs**: 32-bit instruction
-- **Outputs**: 16-bit bitstream of control signals, with various flags
+- **Outputs**: 16-bit wide control signal, with various flags like enable signals, input to select line of mux, etc.
+- **CAUTION: It is advised not to change this part of code. If you are making changes then please ensure you have appropraitely mapped the function of various bits in control signal.**
 
 ### ProgramCounter
 - **Inputs**: `clk`, `reset`, `zero`, `branch`, `jump` flags, a 32-bit register address
